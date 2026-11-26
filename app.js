@@ -467,11 +467,17 @@ async function fetchArtistInfo(artistName, artistId) {
   }
 }
 
+let flipBackTimer = null;
+
 albumSleeveEl.addEventListener("click", () => {
   const willFlip = !albumSleeveEl.classList.contains("flipped");
   albumSleeveEl.classList.toggle("flipped", willFlip);
+  clearTimeout(flipBackTimer);
   if (willFlip) {
     fetchArtistInfo(currentArtistName, currentArtistId);
+    flipBackTimer = setTimeout(() => {
+      albumSleeveEl.classList.remove("flipped");
+    }, 20000);
   }
 });
 
