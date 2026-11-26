@@ -422,7 +422,9 @@ async function fetchArtistInfo(artistName, artistId) {
     } catch {}
   }
 
-  // 2. Fetch concise bio from Wikipedia (exact summary, then music-aware search in ES & EN)
+  // 2. Fetch concise bio from Wikipedia (strictly validated as a music artist/band)
+  const MUSIC_RE = /\b(band|musician|singer|songwriter|duo|trio|quartet|rapper|dj|composer|producer|music|album|albums|rock|pop|indie|jazz|electronic|metal|hip hop|punk|folk|soul|r&b|banda|músic[oa]|cantante|cantautor|dúo|rapero|compositor|productor|música|álbum|disco|grupo musical)\b/i;
+
   const fetchSummary = async (lang, title) => {
     const res = await fetch(
       `https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`
@@ -430,6 +432,8 @@ async function fetchArtistInfo(artistName, artistId) {
     if (!res.ok) return null;
     const data = await res.json();
     if (data.type === "disambiguation" || !data.extract) return null;
+    const text = `${data.description || ""} ${data.extract}`;
+    if (!MUSIC_RE.test(text)) return null;
     return data;
   };
 
