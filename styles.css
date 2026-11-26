@@ -406,16 +406,16 @@ body.ui-hidden .ui-chrome {
   pointer-events: none;
 }
 
-/* Single generous bottom playback pill */
+/* Single compact bottom playback pill */
 .vinyl-hud {
   position: fixed;
-  bottom: 1.5rem;
+  bottom: 0.9rem;
   left: 50%;
   transform: translateX(-50%);
   z-index: 40;
   display: flex;
   justify-content: center;
-  width: min(94vw, 680px);
+  width: min(94vw, 620px);
   pointer-events: none;
 }
 
@@ -423,13 +423,13 @@ body.ui-hidden .ui-chrome {
   pointer-events: auto;
   display: flex;
   align-items: center;
-  gap: 1.25rem;
-  padding: 0.5rem 1.25rem 0.5rem 0.65rem;
+  gap: 1rem;
+  padding: 0.32rem 1rem 0.32rem 0.45rem;
   border-radius: 999px;
   background: color-mix(in srgb, var(--surface-elevated) 86%, transparent);
   backdrop-filter: blur(16px);
   border: 1px solid var(--border);
-  box-shadow: 0 12px 32px rgba(0, 0, 0, 0.22);
+  box-shadow: 0 10px 26px rgba(0, 0, 0, 0.22);
 }
 
 .hud-progress {
@@ -477,8 +477,8 @@ body.ui-hidden .ui-chrome {
 }
 
 .ctrl-btn {
-  width: 46px;
-  height: 46px;
+  width: 38px;
+  height: 38px;
   border-radius: 50%;
   border: none;
   background: transparent;
@@ -499,8 +499,8 @@ body.ui-hidden .ui-chrome {
 }
 
 .ctrl-primary {
-  width: 52px;
-  height: 52px;
+  width: 44px;
+  height: 44px;
   background: var(--surface);
 }
 
