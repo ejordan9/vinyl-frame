@@ -399,12 +399,77 @@ setInterval(() => {
 
 setInterval(updateClock, 15000);
 
+// ==================== SUBTLE MECHANICAL SOUND & HAPTIC FX (WEB AUDIO) ====================
+const soundFxToggle = document.getElementById("soundFxToggle");
+let audioCtx = null;
+
+try {
+  if (localStorage.getItem("sound_fx_enabled") === "0" && soundFxToggle) {
+    soundFxToggle.checked = false;
+  }
+} catch {}
+
+soundFxToggle?.addEventListener("change", () => {
+  try { localStorage.setItem("sound_fx_enabled", soundFxToggle.checked ? "1" : "0"); } catch {}
+  if (soundFxToggle.checked) playMechanicalClick();
+});
+
+function getAudioCtx() {
+  if (!soundFxToggle?.checked) return null;
+  if (!audioCtx) {
+    const Ctx = window.AudioContext || window.webkitAudioContext;
+    if (Ctx) audioCtx = new Ctx();
+  }
+  if (audioCtx?.state === "suspended") audioCtx.resume().catch(() => {});
+  return audioCtx;
+}
+
+function playMechanicalClick() {
+  navigator.vibrate?.(12);
+  const ctx = getAudioCtx();
+  if (!ctx) return;
+  const now = ctx.currentTime;
+
+  // Warm tactile switch thump
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = "triangle";
+  osc.frequency.setValueAtTime(210, now);
+  osc.frequency.exponentialRampToValueAtTime(65, now + 0.028);
+  gain.gain.setValueAtTime(0.16, now);
+  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.032);
+  osc.connect(gain).connect(ctx.destination);
+  osc.start(now);
+  osc.stop(now + 0.035);
+}
+
+function playNeedleDrop() {
+  const ctx = getAudioCtx();
+  if (!ctx) return;
+  const now = ctx.currentTime;
+
+  // Soft stylus touchdown + tiny warm vinyl pop
+  const osc = ctx.createOscillator();
+  const gain = ctx.createGain();
+  osc.type = "sine";
+  osc.frequency.setValueAtTime(115, now);
+  osc.frequency.exponentialRampToValueAtTime(42, now + 0.085);
+  gain.gain.setValueAtTime(0.14, now);
+  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+  osc.connect(gain).connect(ctx.destination);
+  osc.start(now);
+  osc.stop(now + 0.095);
+}
+
 // Controls
 async function togglePlayback() {
+  playMechanicalClick();
+  const willPlay = !isPlaying;
+  if (willPlay) setTimeout(playNeedleDrop, 260);
   if (spotifyMode) {
     await spotifyCommand(isPlaying ? "pause" : "play", "PUT");
   }
-  setPlaying(!isPlaying);
+  setPlaying(willPlay);
 }
 
 document.getElementById("playPauseBtn").addEventListener("click", togglePlayback);
@@ -575,6 +640,7 @@ albumSleeveEl.addEventListener("click", () => {
 });
 
 document.getElementById("nextBtn").addEventListener("click", async () => {
+  playMechanicalClick();
   if (spotifyMode) {
     await spotifyCommand("next", "POST");
     return;
@@ -586,6 +652,7 @@ document.getElementById("nextBtn").addEventListener("click", async () => {
 });
 
 document.getElementById("prevBtn").addEventListener("click", async () => {
+  playMechanicalClick();
   if (spotifyMode) {
     await spotifyCommand("previous", "POST");
     return;
