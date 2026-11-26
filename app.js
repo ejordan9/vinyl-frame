@@ -422,10 +422,10 @@ async function fetchArtistInfo(artistName, artistId) {
     } catch {}
   }
 
-  // 2. Fetch concise bio from Wikipedia REST API (Spanish first, fallback to English)
-  const tryWiki = async (lang) => {
+  // 2. Fetch concise bio from Wikipedia (exact summary, then music-aware search in ES & EN)
+  const fetchSummary = async (lang, title) => {
     const res = await fetch(
-      `https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(artistName)}`
+      `https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`
     );
     if (!res.ok) return null;
     const data = await res.json();
@@ -433,8 +433,26 @@ async function fetchArtistInfo(artistName, artistId) {
     return data;
   };
 
+  const searchAndFetch = async (lang, query) => {
+    const res = await fetch(
+      `https://${lang}.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&srlimit=3&format=json&origin=*`
+    );
+    if (!res.ok) return null;
+    const json = await res.json();
+    const hits = json.query?.search || [];
+    for (const hit of hits) {
+      const summary = await fetchSummary(lang, hit.title);
+      if (summary) return summary;
+    }
+    return null;
+  };
+
   try {
-    const wiki = (await tryWiki("es")) || (await tryWiki("en"));
+    const wiki =
+      (await fetchSummary("es", artistName)) ||
+      (await searchAndFetch("es", `${artistName} banda OR cantante OR músico`)) ||
+      (await fetchSummary("en", artistName)) ||
+      (await searchAndFetch("en", `${artistName} band OR musician`));
     if (wiki) {
       artistCardBio.textContent = wiki.extract;
       if (!artistCardBg.style.backgroundImage && wiki.thumbnail?.source) {
