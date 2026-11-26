@@ -414,51 +414,71 @@ soundFxToggle?.addEventListener("change", () => {
   if (soundFxToggle.checked) playMechanicalClick();
 });
 
-function getAudioCtx() {
+async function getAudioCtx() {
   if (!soundFxToggle?.checked) return null;
   if (!audioCtx) {
     const Ctx = window.AudioContext || window.webkitAudioContext;
     if (Ctx) audioCtx = new Ctx();
   }
-  if (audioCtx?.state === "suspended") audioCtx.resume().catch(() => {});
+  if (audioCtx?.state === "suspended") {
+    try { await audioCtx.resume(); } catch {}
+  }
   return audioCtx;
 }
 
-function playMechanicalClick() {
+async function playMechanicalClick() {
   navigator.vibrate?.(12);
-  const ctx = getAudioCtx();
+  const ctx = await getAudioCtx();
   if (!ctx) return;
   const now = ctx.currentTime;
 
-  // Warm tactile switch thump
+  // Crisp mechanical switch snap (audible on small tablet/laptop speakers)
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
   osc.type = "triangle";
-  osc.frequency.setValueAtTime(210, now);
-  osc.frequency.exponentialRampToValueAtTime(65, now + 0.028);
-  gain.gain.setValueAtTime(0.16, now);
-  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.032);
+  osc.frequency.setValueAtTime(680, now);
+  osc.frequency.exponentialRampToValueAtTime(160, now + 0.035);
+  gain.gain.setValueAtTime(0.45, now);
+  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
   osc.connect(gain).connect(ctx.destination);
   osc.start(now);
-  osc.stop(now + 0.035);
+  osc.stop(now + 0.05);
+
+  // Subtle high-frequency tactile click transient
+  const bufSize = Math.floor(ctx.sampleRate * 0.018);
+  const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
+  const data = buf.getChannelData(0);
+  for (let i = 0; i < bufSize; i++) {
+    data[i] = (Math.random() * 2 - 1) * (1 - i / bufSize);
+  }
+  const noise = ctx.createBufferSource();
+  noise.buffer = buf;
+  const filter = ctx.createBiquadFilter();
+  filter.type = "bandpass";
+  filter.frequency.value = 1800;
+  const nGain = ctx.createGain();
+  nGain.gain.setValueAtTime(0.35, now);
+  nGain.gain.exponentialRampToValueAtTime(0.001, now + 0.018);
+  noise.connect(filter).connect(nGain).connect(ctx.destination);
+  noise.start(now);
 }
 
-function playNeedleDrop() {
-  const ctx = getAudioCtx();
+async function playNeedleDrop() {
+  const ctx = await getAudioCtx();
   if (!ctx) return;
   const now = ctx.currentTime;
 
-  // Soft stylus touchdown + tiny warm vinyl pop
+  // Warm stylus touchdown thump
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
   osc.type = "sine";
-  osc.frequency.setValueAtTime(115, now);
-  osc.frequency.exponentialRampToValueAtTime(42, now + 0.085);
-  gain.gain.setValueAtTime(0.14, now);
-  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.09);
+  osc.frequency.setValueAtTime(240, now);
+  osc.frequency.exponentialRampToValueAtTime(75, now + 0.09);
+  gain.gain.setValueAtTime(0.38, now);
+  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
   osc.connect(gain).connect(ctx.destination);
   osc.start(now);
-  osc.stop(now + 0.095);
+  osc.stop(now + 0.11);
 }
 
 // Controls
