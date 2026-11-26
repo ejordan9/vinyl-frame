@@ -438,14 +438,14 @@ async function playMechanicalClick() {
   osc.type = "triangle";
   osc.frequency.setValueAtTime(680, now);
   osc.frequency.exponentialRampToValueAtTime(160, now + 0.035);
-  gain.gain.setValueAtTime(0.45, now);
-  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.045);
+  gain.gain.setValueAtTime(0.85, now);
+  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.055);
   osc.connect(gain).connect(ctx.destination);
   osc.start(now);
-  osc.stop(now + 0.05);
+  osc.stop(now + 0.06);
 
-  // Subtle high-frequency tactile click transient
-  const bufSize = Math.floor(ctx.sampleRate * 0.018);
+  // Crisp high-frequency tactile click transient
+  const bufSize = Math.floor(ctx.sampleRate * 0.022);
   const buf = ctx.createBuffer(1, bufSize, ctx.sampleRate);
   const data = buf.getChannelData(0);
   for (let i = 0; i < bufSize; i++) {
@@ -455,10 +455,10 @@ async function playMechanicalClick() {
   noise.buffer = buf;
   const filter = ctx.createBiquadFilter();
   filter.type = "bandpass";
-  filter.frequency.value = 1800;
+  filter.frequency.value = 2200;
   const nGain = ctx.createGain();
-  nGain.gain.setValueAtTime(0.35, now);
-  nGain.gain.exponentialRampToValueAtTime(0.001, now + 0.018);
+  nGain.gain.setValueAtTime(0.75, now);
+  nGain.gain.exponentialRampToValueAtTime(0.001, now + 0.022);
   noise.connect(filter).connect(nGain).connect(ctx.destination);
   noise.start(now);
 }
@@ -474,8 +474,8 @@ async function playNeedleDrop() {
   osc.type = "sine";
   osc.frequency.setValueAtTime(240, now);
   osc.frequency.exponentialRampToValueAtTime(75, now + 0.09);
-  gain.gain.setValueAtTime(0.38, now);
-  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.1);
+  gain.gain.setValueAtTime(0.75, now);
+  gain.gain.exponentialRampToValueAtTime(0.001, now + 0.11);
   osc.connect(gain).connect(ctx.destination);
   osc.start(now);
   osc.stop(now + 0.11);
