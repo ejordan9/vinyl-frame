@@ -23,16 +23,32 @@
   <main class="frame-stage" id="stage" data-mode="vinyl">
     <!-- MODE 1: MD VINYL FULL-SCREEN RECORD PLAYER -->
     <section class="view view-vinyl" id="vinylView" aria-label="Reproductor de vinilo">
-      <div class="md-vinyl-stage" id="vinylTapArea">
-        <!-- Giant Tilted Album Sleeve (Left) -->
-        <div class="album-sleeve" id="albumSleeve">
-          <div class="album-art" id="albumArt"></div>
-          <div class="sleeve-crease" aria-hidden="true"></div>
+      <div class="md-vinyl-stage">
+        <!-- Giant Tilted 3D-Flippable Album Sleeve (Left) -->
+        <div class="album-sleeve-wrap" id="albumSleeve" role="button" tabindex="0" aria-label="Voltear portada para ver información del artista">
+          <div class="album-sleeve-inner">
+            <!-- Front: Album Cover -->
+            <div class="sleeve-face sleeve-front">
+              <div class="album-art" id="albumArt"></div>
+              <div class="sleeve-crease" aria-hidden="true"></div>
+            </div>
+            <!-- Back: Artist Bio Card ("Acerca de") -->
+            <div class="sleeve-face sleeve-back">
+              <div class="artist-card-bg" id="artistCardBg"></div>
+              <div class="artist-card-scrim" aria-hidden="true"></div>
+              <div class="artist-card-content">
+                <div class="artist-card-eyebrow">ACERCA DEL ARTISTA</div>
+                <h2 class="artist-card-name" id="artistCardName">Artista</h2>
+                <div class="artist-card-stats" id="artistCardStats"></div>
+                <p class="artist-card-bio" id="artistCardBio">Toca la portada para volver al álbum.</p>
+              </div>
+            </div>
+          </div>
         </div>
 
         <!-- Giant Spinning Vinyl Disc (Right, overlapping sleeve) -->
         <div class="vinyl-zone">
-          <div class="vinyl-disc" id="vinylDisc" aria-hidden="true">
+          <div class="vinyl-disc" id="vinylDisc" role="button" tabindex="0" aria-label="Pausar o reanudar reproducción">
             <div class="vinyl-grooves"></div>
             <div class="vinyl-sheen"></div>
             <div class="vinyl-label" id="vinylLabel">

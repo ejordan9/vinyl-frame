@@ -377,7 +377,85 @@ async function togglePlayback() {
 }
 
 document.getElementById("playPauseBtn").addEventListener("click", togglePlayback);
-document.getElementById("vinylTapArea").addEventListener("click", togglePlayback);
+vinylDisc.addEventListener("click", togglePlayback);
+
+// 3D Flip Album Sleeve -> Artist Info ("Acerca del artista")
+const albumSleeveEl = document.getElementById("albumSleeve");
+const artistCardBg = document.getElementById("artistCardBg");
+const artistCardName = document.getElementById("artistCardName");
+const artistCardStats = document.getElementById("artistCardStats");
+const artistCardBio = document.getElementById("artistCardBio");
+
+let currentArtistId = null;
+let currentArtistName = "Kaito Morita Quartet";
+let loadedArtistKey = null;
+
+async function fetchArtistInfo(artistName, artistId) {
+  const key = artistId || artistName;
+  if (loadedArtistKey === key) return;
+  loadedArtistKey = key;
+
+  artistCardName.textContent = artistName;
+  artistCardStats.textContent = "";
+  artistCardBio.textContent = "Cargando información del artista...";
+  artistCardBg.style.backgroundImage = "";
+
+  // 1. Fetch artist photo, followers & genres from Spotify Web API if connected
+  if (spotifyMode && artistId) {
+    try {
+      const token = await getValidSpotifyToken();
+      if (token) {
+        const res = await fetch(`https://api.spotify.com/v1/artists/${artistId}`, {
+          headers: { Authorization: `Bearer ${token}` }
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const photo = data.images?.[0]?.url;
+          if (photo) artistCardBg.style.backgroundImage = `url("${photo}")`;
+          const followers = data.followers?.total
+            ? `${data.followers.total.toLocaleString("es-ES")} seguidores`
+            : "";
+          const genres = (data.genres || []).slice(0, 2).join(" · ");
+          artistCardStats.textContent = [followers, genres].filter(Boolean).join("  •  ");
+        }
+      }
+    } catch {}
+  }
+
+  // 2. Fetch concise bio from Wikipedia REST API (Spanish first, fallback to English)
+  const tryWiki = async (lang) => {
+    const res = await fetch(
+      `https://${lang}.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(artistName)}`
+    );
+    if (!res.ok) return null;
+    const data = await res.json();
+    if (data.type === "disambiguation" || !data.extract) return null;
+    return data;
+  };
+
+  try {
+    const wiki = (await tryWiki("es")) || (await tryWiki("en"));
+    if (wiki) {
+      artistCardBio.textContent = wiki.extract;
+      if (!artistCardBg.style.backgroundImage && wiki.thumbnail?.source) {
+        artistCardBg.style.backgroundImage = `url("${wiki.thumbnail.source}")`;
+      }
+    } else {
+      artistCardBio.textContent =
+        "Sin biografía disponible en Wikipedia para este artista. Toca la portada para volver al álbum.";
+    }
+  } catch {
+    artistCardBio.textContent = "Toca la portada para volver al álbum.";
+  }
+}
+
+albumSleeveEl.addEventListener("click", () => {
+  const willFlip = !albumSleeveEl.classList.contains("flipped");
+  albumSleeveEl.classList.toggle("flipped", willFlip);
+  if (willFlip) {
+    fetchArtistInfo(currentArtistName, currentArtistId);
+  }
+});
 
 document.getElementById("nextBtn").addEventListener("click", async () => {
   if (spotifyMode) {
@@ -834,6 +912,9 @@ async function pollSpotify() {
       }
       trackTitle.textContent = item.name;
       trackArtist.textContent = artistStr;
+      currentArtistName = item.artists?.[0]?.name || artistStr;
+      currentArtistId = item.artists?.[0]?.id || null;
+      albumSleeveEl.classList.remove("flipped");
       labelAlbum.textContent = albumName;
       const year = item.album?.release_date ? item.album.release_date.slice(0, 4) : "";
       if (labelYear) labelYear.textContent = year ? `℗ ${year}` : "SIDE A";
