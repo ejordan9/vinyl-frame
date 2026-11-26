@@ -435,12 +435,15 @@ async function fetchArtistInfo(artistName, artistId) {
 
   const searchAndFetch = async (lang, query) => {
     const res = await fetch(
-      `https://${lang}.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&srlimit=3&format=json&origin=*`
+      `https://${lang}.wikipedia.org/w/api.php?action=query&list=search&srsearch=${encodeURIComponent(query)}&srlimit=5&format=json&origin=*`
     );
     if (!res.ok) return null;
     const json = await res.json();
     const hits = json.query?.search || [];
+    const needle = artistName.toLowerCase();
     for (const hit of hits) {
+      // Only accept matches whose title actually includes the artist name
+      if (!hit.title.toLowerCase().includes(needle)) continue;
       const summary = await fetchSummary(lang, hit.title);
       if (summary) return summary;
     }
@@ -448,11 +451,12 @@ async function fetchArtistInfo(artistName, artistId) {
   };
 
   try {
+    // Try exact title in ES & EN first before fuzzy music search
     const wiki =
       (await fetchSummary("es", artistName)) ||
-      (await searchAndFetch("es", `${artistName} banda OR cantante OR músico`)) ||
       (await fetchSummary("en", artistName)) ||
-      (await searchAndFetch("en", `${artistName} band OR musician`));
+      (await searchAndFetch("es", `"${artistName}" banda OR cantante OR músico`)) ||
+      (await searchAndFetch("en", `"${artistName}" band OR musician`));
     if (wiki) {
       artistCardBio.textContent = wiki.extract;
       if (!artistCardBg.style.backgroundImage && wiki.thumbnail?.source) {

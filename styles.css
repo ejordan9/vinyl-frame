@@ -98,8 +98,7 @@ html, body {
 
 .album-sleeve-wrap.flipped {
   z-index: 10;
-  transform: rotate(0deg) translateX(6%) scale(1.03);
-  transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1), z-index 0s;
+  transition: z-index 0s;
 }
 
 .album-sleeve-inner {
