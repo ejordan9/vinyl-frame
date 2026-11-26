@@ -434,7 +434,21 @@ async function fetchArtistInfo(artistName, artistId) {
     if (data.type === "disambiguation" || !data.extract) return null;
     const text = `${data.description || ""} ${data.extract}`;
     if (!MUSIC_RE.test(text)) return null;
-    return data;
+    return { ...data, _lang: lang };
+  };
+
+  const translateToEs = async (text) => {
+    const snippet = text.length > 460 ? `${text.slice(0, 457).trim()}...` : text;
+    try {
+      const res = await fetch(
+        `https://api.mymemory.translated.net/get?q=${encodeURIComponent(snippet)}&langpair=en|es`
+      );
+      if (!res.ok) return text;
+      const json = await res.json();
+      return json.responseData?.translatedText || text;
+    } catch {
+      return text;
+    }
   };
 
   const searchAndFetch = async (lang, query) => {
@@ -462,7 +476,8 @@ async function fetchArtistInfo(artistName, artistId) {
       (await searchAndFetch("es", `"${artistName}" banda OR cantante OR músico`)) ||
       (await searchAndFetch("en", `"${artistName}" band OR musician`));
     if (wiki) {
-      artistCardBio.textContent = wiki.extract;
+      artistCardBio.textContent =
+        wiki._lang === "en" ? await translateToEs(wiki.extract) : wiki.extract;
       if (!artistCardBg.style.backgroundImage && wiki.thumbnail?.source) {
         artistCardBg.style.backgroundImage = `url("${wiki.thumbnail.source}")`;
       }
