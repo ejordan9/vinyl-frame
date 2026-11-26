@@ -871,6 +871,9 @@ function updateSpotifyUI() {
   connectSpotifyBtn.textContent = spotifyMode ? "Reconectar" : "Conectar";
   if (spotifyMode) {
     spotifyHint.textContent = "Conectado a Spotify en vivo. Reproduce cualquier canción en tu teléfono o PC.";
+  } else {
+    const preview = document.getElementById("redirectUriPreview");
+    if (preview) preview.textContent = getRedirectUri();
   }
 }
 
