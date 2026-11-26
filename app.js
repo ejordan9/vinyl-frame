@@ -121,6 +121,7 @@ const labelAlbum = document.getElementById("labelAlbum");
 const labelYear = document.getElementById("labelYear");
 const labelTrackNum = document.getElementById("labelTrackNum");
 const labelArtBg = document.getElementById("labelArtBg");
+const ambientAlbumBg = document.getElementById("ambientAlbumBg");
 const progressFill = document.getElementById("progressFill");
 const scaleNeedle = document.getElementById("scaleNeedle");
 const progressTrack = document.getElementById("progressTrack");
@@ -635,16 +636,25 @@ if (!("closedBy" in HTMLDialogElement.prototype)) {
   });
 }
 
-// Three-state color-scheme toggle (System / Light / Dark)
+// Four-state theme toggle (System / Light / Dark / Ambient Blur)
 const schemeMeta = document.querySelector('meta[name="color-scheme"]');
 const segBtns = document.querySelectorAll(".seg-btn");
 
 function applyScheme(value, persist = true) {
-  schemeMeta.content = value;
+  const isAmbient = value === "ambient";
+  document.body.classList.toggle("theme-ambient", isAmbient);
+  schemeMeta.content = isAmbient ? "dark" : value;
+
   if (persist) {
     try {
-      if (value === "light dark") localStorage.removeItem("color-scheme");
-      else localStorage.setItem("color-scheme", value);
+      if (isAmbient) {
+        localStorage.setItem("theme_ambient", "1");
+        localStorage.setItem("color-scheme", "dark");
+      } else {
+        localStorage.removeItem("theme_ambient");
+        if (value === "light dark") localStorage.removeItem("color-scheme");
+        else localStorage.setItem("color-scheme", value);
+      }
     } catch {}
   }
   segBtns.forEach((b) => b.classList.toggle("active", b.dataset.scheme === value));
@@ -1057,6 +1067,7 @@ async function pollSpotify() {
       if (imgUrl) {
         albumArt.innerHTML = `<img src="${imgUrl}" alt="${albumName}">`;
         labelArtBg.style.backgroundImage = `url("${imgUrl}")`;
+        if (ambientAlbumBg) ambientAlbumBg.style.backgroundImage = `url("${imgUrl}")`;
         extractPaletteAndApply(imgUrl, { id: item.album?.id || item.id, album: albumName, artist: artistStr });
       } else {
         applyVinylPressing({ id: item.album?.id || item.id, album: albumName, artist: artistStr });
@@ -1133,7 +1144,11 @@ disconnectSpotifyBtn.addEventListener("click", () => {
 });
 
 // Init
-applyScheme(schemeMeta.content || "light dark", false);
+let initialTheme = schemeMeta.content || "light dark";
+try {
+  if (localStorage.getItem("theme_ambient") === "1") initialTheme = "ambient";
+} catch {}
+applyScheme(initialTheme, false);
 renderTrack();
 renderScene();
 updateClock();

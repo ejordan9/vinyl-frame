@@ -23,6 +23,7 @@
   <main class="frame-stage" id="stage" data-mode="vinyl">
     <!-- MODE 1: MD VINYL FULL-SCREEN RECORD PLAYER -->
     <section class="view view-vinyl" id="vinylView" aria-label="Reproductor de vinilo">
+      <div class="ambient-album-bg" id="ambientAlbumBg" aria-hidden="true"></div>
       <div class="md-vinyl-stage">
         <!-- Giant Tilted 3D-Flippable Album Sleeve (Left) -->
         <div class="album-sleeve-wrap" id="albumSleeve" role="button" tabindex="0" aria-label="Voltear portada para ver información del artista">
@@ -173,11 +174,12 @@
       </header>
 
       <div class="setting-group">
-        <label class="setting-label">Apariencia (Papel / Editorial)</label>
-        <div class="segmented" role="radiogroup" aria-label="Tema de color">
+        <label class="setting-label">Apariencia (Papel / Editorial / Atmósfera)</label>
+        <div class="segmented segmented-4" role="radiogroup" aria-label="Tema de color">
           <button type="button" class="seg-btn" data-scheme="light dark">Sistema</button>
-          <button type="button" class="seg-btn" data-scheme="light">Papel Claro</button>
-          <button type="button" class="seg-btn" data-scheme="dark">Editorial Oscuro</button>
+          <button type="button" class="seg-btn" data-scheme="light">Claro</button>
+          <button type="button" class="seg-btn" data-scheme="dark">Oscuro</button>
+          <button type="button" class="seg-btn" data-scheme="ambient">Atmósfera</button>
         </div>
       </div>
 

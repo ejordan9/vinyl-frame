@@ -71,8 +71,34 @@ html, body {
 }
 
 /* ==================== MD VINYL FULL-SCREEN MODE ==================== */
+/* Ambient / Blur Album Background Mode ("Atmósfera") */
+.ambient-album-bg {
+  position: absolute;
+  inset: -12%;
+  z-index: 0;
+  background-size: cover;
+  background-position: center;
+  filter: blur(72px) saturate(1.45) brightness(0.62);
+  opacity: 0;
+  pointer-events: none;
+  transition: opacity 0.8s ease, background-image 0.8s ease;
+}
+
+body.theme-ambient .ambient-album-bg {
+  opacity: 1;
+}
+
+body.theme-ambient .md-vinyl-stage {
+  background: radial-gradient(
+    ellipse at 50% 50%,
+    transparent 0%,
+    rgba(0, 0, 0, 0.38) 100%
+  );
+}
+
 .md-vinyl-stage {
   position: relative;
+  z-index: 1;
   width: 100vw;
   height: 100vh;
   display: flex;
@@ -932,6 +958,10 @@ dialog::backdrop {
   background: var(--surface);
   padding: 0.25rem;
   border-radius: 10px;
+}
+
+.segmented-4 {
+  grid-template-columns: repeat(4, 1fr);
 }
 
 .seg-btn {
