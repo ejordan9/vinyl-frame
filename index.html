@@ -32,37 +32,15 @@
               <div class="album-art" id="albumArt"></div>
               <div class="sleeve-crease" aria-hidden="true"></div>
             </div>
-            <!-- Back: Vintage LP Tracklist (Side One / Side Two) + Artist Bio -->
+            <!-- Back: Unified Editorial Back Cover (Artist Photo + Tracklist top + Bio bottom) -->
             <div class="sleeve-face sleeve-back">
-              <div class="back-tabs" id="backTabs">
-                <button type="button" class="back-tab active" data-tab="tracks">Tracklist</button>
-                <button type="button" class="back-tab" data-tab="artist">Artista</button>
-              </div>
-
-              <!-- Tab 1: Vintage LP Back Cover Tracklist -->
-              <div class="back-panel back-tracks" id="panelTracks">
-                <div class="lp-back-header">
+              <div class="artist-card-bg" id="artistCardBg"></div>
+              <div class="artist-card-scrim" aria-hidden="true"></div>
+              <div class="back-unified">
+                <div class="back-top-tracks">
                   <div class="lp-back-album" id="lpBackAlbum">Album</div>
-                  <div class="lp-back-artist" id="lpBackArtist">Artist</div>
+                  <ol class="lp-track-list" id="sideOneList"></ol>
                 </div>
-                <hr class="lp-rule">
-                <div class="lp-sides">
-                  <div class="lp-side">
-                    <div class="lp-side-title">Side One</div>
-                    <ol class="lp-track-list" id="sideOneList"></ol>
-                  </div>
-                  <div class="lp-side">
-                    <div class="lp-side-title">Side Two</div>
-                    <ol class="lp-track-list" id="sideTwoList"></ol>
-                  </div>
-                </div>
-                <hr class="lp-rule">
-              </div>
-
-              <!-- Tab 2: Artist Bio Card -->
-              <div class="back-panel back-artist" id="panelArtist" hidden>
-                <div class="artist-card-bg" id="artistCardBg"></div>
-                <div class="artist-card-scrim" aria-hidden="true"></div>
                 <div class="artist-card-content">
                   <div class="artist-card-eyebrow">ACERCA DEL ARTISTA</div>
                   <h2 class="artist-card-name" id="artistCardName">Artista</h2>

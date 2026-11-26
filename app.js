@@ -383,15 +383,10 @@ async function togglePlayback() {
 document.getElementById("playPauseBtn").addEventListener("click", togglePlayback);
 vinylDisc.addEventListener("click", togglePlayback);
 
-// 3D Flip Album Sleeve -> Vintage LP Tracklist (Side One / Side Two) + Artist Info
+// 3D Flip Album Sleeve -> Unified Editorial Back Cover (Tracklist + Artist Bio)
 const albumSleeveEl = document.getElementById("albumSleeve");
-const backTabs = document.getElementById("backTabs");
-const panelTracks = document.getElementById("panelTracks");
-const panelArtist = document.getElementById("panelArtist");
 const lpBackAlbum = document.getElementById("lpBackAlbum");
-const lpBackArtist = document.getElementById("lpBackArtist");
 const sideOneList = document.getElementById("sideOneList");
-const sideTwoList = document.getElementById("sideTwoList");
 const artistCardBg = document.getElementById("artistCardBg");
 const artistCardName = document.getElementById("artistCardName");
 const artistCardStats = document.getElementById("artistCardStats");
@@ -407,19 +402,13 @@ let loadedAlbumId = null;
 
 function renderTrackList(tracks) {
   lpBackAlbum.textContent = currentAlbumName;
-  lpBackArtist.textContent = currentArtistName;
-  const limited = tracks.slice(0, 14);
-  const mid = Math.ceil(limited.length / 2);
-  const fill = (el, list, offset) => {
-    el.innerHTML = list
-      .map((name, i) => {
-        const active = name.toLowerCase() === currentTrackName.toLowerCase();
-        return `<li class="lp-track-item${active ? " is-current" : ""}"><span class="lp-track-num">${offset + i + 1}.</span><span class="lp-track-name">${name}</span></li>`;
-      })
-      .join("");
-  };
-  fill(sideOneList, limited.slice(0, mid), 0);
-  fill(sideTwoList, limited.slice(mid), mid);
+  const limited = tracks.slice(0, 10);
+  sideOneList.innerHTML = limited
+    .map((name, i) => {
+      const active = name.toLowerCase() === currentTrackName.toLowerCase();
+      return `<li class="lp-track-item${active ? " is-current" : ""}"><span class="lp-track-num">${String(i + 1).padStart(2, "0")}.</span><span class="lp-track-name">${name}</span></li>`;
+    })
+    .join("");
 }
 
 async function fetchAlbumTracks() {
@@ -432,7 +421,7 @@ async function fetchAlbumTracks() {
   try {
     const token = await getValidSpotifyToken();
     if (!token) return;
-    const res = await fetch(`https://api.spotify.com/v1/albums/${currentAlbumId}/tracks?limit=16`, {
+    const res = await fetch(`https://api.spotify.com/v1/albums/${currentAlbumId}/tracks?limit=12`, {
       headers: { Authorization: `Bearer ${token}` }
     });
     if (res.ok) {
@@ -442,17 +431,6 @@ async function fetchAlbumTracks() {
     }
   } catch {}
 }
-
-backTabs.addEventListener("click", (e) => {
-  e.stopPropagation();
-  const btn = e.target.closest(".back-tab");
-  if (!btn) return;
-  const tab = btn.dataset.tab;
-  backTabs.querySelectorAll(".back-tab").forEach((b) => b.classList.toggle("active", b === btn));
-  panelTracks.hidden = tab !== "tracks";
-  panelArtist.hidden = tab !== "artist";
-  if (tab === "artist") fetchArtistInfo(currentArtistName, currentArtistId);
-});
 
 async function fetchArtistInfo(artistName, artistId) {
   const key = artistId || artistName;
@@ -562,7 +540,7 @@ albumSleeveEl.addEventListener("click", () => {
   clearTimeout(flipBackTimer);
   if (willFlip) {
     fetchAlbumTracks();
-    if (!panelArtist.hidden) fetchArtistInfo(currentArtistName, currentArtistId);
+    fetchArtistInfo(currentArtistName, currentArtistId);
     flipBackTimer = setTimeout(() => {
       albumSleeveEl.classList.remove("flipped");
     }, 20000);
