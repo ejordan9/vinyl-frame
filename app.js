@@ -207,17 +207,32 @@ function setMode(mode) {
   sceneCycleBtn.hidden = !isEink;
 }
 
-// Auto-hide UI chrome after 6s of inactivity (pure decorative frame mode)
+// Optional auto-hide UI chrome (OFF by default so controls stay visible like a real hardware deck)
+const autoHideToggle = document.getElementById("autoHideToggle");
 let uiHideTimer = null;
+
 function wakeUI() {
   document.body.classList.remove("ui-hidden");
   clearTimeout(uiHideTimer);
-  if (!settingsDialog.open) {
+  if (autoHideToggle?.checked && !settingsDialog.open) {
     uiHideTimer = setTimeout(() => {
-      if (!settingsDialog.open) document.body.classList.add("ui-hidden");
+      if (autoHideToggle.checked && !settingsDialog.open) {
+        document.body.classList.add("ui-hidden");
+      }
     }, 6000);
   }
 }
+
+autoHideToggle?.addEventListener("change", () => {
+  try { localStorage.setItem("auto_hide_ui", autoHideToggle.checked ? "1" : "0"); } catch {}
+  wakeUI();
+});
+
+try {
+  if (localStorage.getItem("auto_hide_ui") === "1" && autoHideToggle) {
+    autoHideToggle.checked = true;
+  }
+} catch {}
 
 ["pointerdown", "pointermove", "keydown"].forEach((evt) => {
   window.addEventListener(evt, wakeUI, { passive: true });

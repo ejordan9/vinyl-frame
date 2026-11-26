@@ -580,59 +580,75 @@ body.ui-hidden .ui-chrome {
   pointer-events: none;
 }
 
-/* Analog Hi-Fi Deck Controls */
-.analog-deck {
+/* Teenage Engineering (OP-1 / TP-7) Tactile Deck Controls */
+.te-deck {
   pointer-events: auto;
   display: flex;
   align-items: center;
-  gap: 1.1rem;
-  padding: 0.42rem 1.05rem 0.42rem 0.55rem;
+  gap: 1.05rem;
+  padding: 0.45rem 1.05rem 0.45rem 0.55rem;
   border-radius: 12px;
-  background: linear-gradient(180deg, light-dark(#e3ddd2, #2c2a27) 0%, light-dark(#cfc8ba, #1e1d1b) 100%);
-  border: 1px solid light-dark(rgba(0, 0, 0, 0.16), rgba(255, 255, 255, 0.12));
+  background: light-dark(#dcdbd6, #262523);
+  border: 1px solid light-dark(#c2c1bc, rgba(255, 255, 255, 0.1));
   box-shadow:
-    0 12px 28px rgba(0, 0, 0, 0.34),
-    inset 0 1px 0 rgba(255, 255, 255, 0.22);
+    0 12px 28px rgba(0, 0, 0, 0.32),
+    inset 0 1px 0 light-dark(rgba(255, 255, 255, 0.85), rgba(255, 255, 255, 0.08));
 }
 
-.deck-keys {
+.te-keys {
   display: inline-flex;
   align-items: center;
-  gap: 2px;
-  padding: 2px;
-  border-radius: 6px;
-  background: rgba(0, 0, 0, 0.28);
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.5);
+  gap: 6px;
 }
 
-.deck-key {
-  width: 40px;
-  height: 32px;
-  border: none;
-  border-radius: 4px;
-  background:
-    repeating-linear-gradient(90deg, rgba(0, 0, 0, 0.04) 0px, rgba(0, 0, 0, 0.04) 1px, transparent 1px, transparent 3px),
-    linear-gradient(180deg, #f3f1ec 0%, #d4d0c7 100%);
-  color: #242220;
+.te-btn {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  border-radius: 8px;
+  border: 1px solid light-dark(#bdbeb9, rgba(255, 255, 255, 0.12));
+  background: light-dark(#f5f5f2, #343330);
+  box-shadow:
+    0 3px 0 light-dark(#b2b3ae, #121110),
+    0 4px 6px rgba(0, 0, 0, 0.22);
   display: inline-flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  box-shadow:
-    0 2px 3px rgba(0, 0, 0, 0.35),
-    inset 0 1px 0 rgba(255, 255, 255, 0.85);
-  transition: transform 0.1s ease, box-shadow 0.1s ease;
+  transition: transform 0.08s ease, box-shadow 0.08s ease;
 }
 
-.deck-key-main {
-  width: 50px;
+.te-btn::before {
+  content: "";
+  position: absolute;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: light-dark(
+    radial-gradient(circle at 60% 60%, #ffffff 0%, #e4e4df 100%),
+    radial-gradient(circle at 60% 60%, #3d3c38 0%, #262522 100%)
+  );
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.22);
 }
 
-.deck-key:active {
-  transform: translateY(1.5px);
-  box-shadow:
-    0 0 1px rgba(0, 0, 0, 0.4),
-    inset 0 2px 3px rgba(0, 0, 0, 0.22);
+.te-btn svg {
+  position: relative;
+  z-index: 1;
+  color: light-dark(#2a2a28, #e8e3da);
+}
+
+.te-btn.te-orange::before {
+  background: radial-gradient(circle at 60% 60%, #ff7840 0%, #e65115 100%);
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+.te-btn.te-orange svg {
+  color: #ffffff;
+}
+
+.te-btn:active {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 light-dark(#b2b3ae, #121110);
 }
 
 .hud-progress {
@@ -648,8 +664,8 @@ body.ui-hidden .ui-chrome {
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #e86a2c;
-  box-shadow: 0 0 6px rgba(232, 106, 44, 0.65);
+  background: #ff5e1f;
+  box-shadow: 0 0 6px rgba(255, 94, 31, 0.65);
   transition: opacity 0.3s ease;
 }
 
@@ -658,34 +674,22 @@ body.ui-hidden .ui-chrome {
   box-shadow: none;
 }
 
-.analog-scale {
+.te-scale {
   position: relative;
   width: clamp(120px, 24vw, 240px);
-  height: 12px;
-  background: rgba(0, 0, 0, 0.32);
-  border-radius: 3px;
-  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.55);
+  height: 8px;
+  background: light-dark(rgba(0, 0, 0, 0.14), rgba(0, 0, 0, 0.42));
+  border-radius: 999px;
+  box-shadow: inset 0 1px 2px rgba(0, 0, 0, 0.35);
   overflow: hidden;
   cursor: pointer;
-}
-
-.scale-ticks {
-  position: absolute;
-  inset: 0;
-  background: repeating-linear-gradient(
-    90deg,
-    rgba(255, 255, 255, 0.22) 0px,
-    rgba(255, 255, 255, 0.22) 1px,
-    transparent 1px,
-    transparent 8px
-  );
-  pointer-events: none;
 }
 
 .progress-fill {
   height: 100%;
   width: 35%;
-  background: color-mix(in srgb, var(--accent) 45%, transparent);
+  background: #ff5e1f;
+  border-radius: 999px;
   transition: width 0.3s linear;
 }
 
@@ -694,9 +698,8 @@ body.ui-hidden .ui-chrome {
   top: 0;
   bottom: 0;
   left: 35%;
-  width: 4px;
-  background: #e86a2c;
-  box-shadow: 0 0 6px rgba(232, 106, 44, 0.85);
+  width: 3px;
+  background: #ffffff;
   transform: translateX(-50%);
   transition: left 0.3s linear;
   pointer-events: none;
