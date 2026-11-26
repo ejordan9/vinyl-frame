@@ -586,8 +586,9 @@ async function fetchArtistInfo(artistName, artistId) {
     } catch {}
   }
 
-  // 2. Fetch concise bio from Wikipedia (strictly validated as a music artist/band)
-  const MUSIC_RE = /\b(band|musician|singer|songwriter|duo|trio|quartet|rapper|dj|composer|producer|music|album|albums|rock|pop|indie|jazz|electronic|metal|hip hop|punk|folk|soul|r&b|banda|músic[oa]|cantante|cantautor|dúo|rapero|compositor|productor|música|álbum|disco|grupo musical)\b/i;
+  // 2. Fetch concise bio from Wikipedia (strictly validated as an artist/band, NEVER a song/album/film)
+  const ARTIST_RE = /\b(band|musician|singer|songwriter|duo|trio|quartet|rapper|dj|composer|producer|group|banda|músic[oa]|cantante|cantautor|dúo|trío|rapero|compositor|productor|grupo musical)\b/i;
+  const NON_ARTIST_DESC_RE = /\b(song|single|album|ep|film|movie|novel|book|video game|episode|tv series|canción|sencillo|álbum|disco|película|novela|libro|videojuego|episodio|serie)\b/i;
 
   const fetchSummary = async (lang, title) => {
     const res = await fetch(
@@ -596,8 +597,10 @@ async function fetchArtistInfo(artistName, artistId) {
     if (!res.ok) return null;
     const data = await res.json();
     if (data.type === "disambiguation" || !data.extract) return null;
-    const text = `${data.description || ""} ${data.extract}`;
-    if (!MUSIC_RE.test(text)) return null;
+    const desc = data.description || "";
+    // Reject songs, albums, films, books, etc.
+    if (NON_ARTIST_DESC_RE.test(desc)) return null;
+    if (!ARTIST_RE.test(`${desc} ${data.extract}`)) return null;
     return { ...data, _lang: lang };
   };
 
@@ -633,9 +636,11 @@ async function fetchArtistInfo(artistName, artistId) {
   };
 
   try {
-    // Try exact title in ES & EN first before fuzzy music search
+    // Try exact artist/band titles in ES & EN first before fuzzy music search
     const wiki =
+      (await fetchSummary("es", `${artistName} (banda)`)) ||
       (await fetchSummary("es", artistName)) ||
+      (await fetchSummary("en", `${artistName} (band)`)) ||
       (await fetchSummary("en", artistName)) ||
       (await searchAndFetch("es", `"${artistName}" banda OR cantante OR músico`)) ||
       (await searchAndFetch("en", `"${artistName}" band OR musician`));
