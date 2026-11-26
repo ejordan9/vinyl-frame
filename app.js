@@ -207,19 +207,28 @@ function setMode(mode) {
   sceneCycleBtn.hidden = !isEink;
 }
 
-// Optional auto-hide UI chrome (OFF by default so controls stay visible like a real hardware deck)
+// Top-right system icons ALWAYS auto-hide after 5s; deck controls stay visible unless toggled in Settings
 const autoHideToggle = document.getElementById("autoHideToggle");
+let topHideTimer = null;
 let uiHideTimer = null;
 
 function wakeUI() {
-  document.body.classList.remove("ui-hidden");
+  document.body.classList.remove("top-hidden", "ui-hidden");
+  clearTimeout(topHideTimer);
   clearTimeout(uiHideTimer);
-  if (autoHideToggle?.checked && !settingsDialog.open) {
-    uiHideTimer = setTimeout(() => {
-      if (autoHideToggle.checked && !settingsDialog.open) {
-        document.body.classList.add("ui-hidden");
-      }
-    }, 6000);
+
+  if (!settingsDialog.open) {
+    topHideTimer = setTimeout(() => {
+      if (!settingsDialog.open) document.body.classList.add("top-hidden");
+    }, 5000);
+
+    if (autoHideToggle?.checked) {
+      uiHideTimer = setTimeout(() => {
+        if (autoHideToggle.checked && !settingsDialog.open) {
+          document.body.classList.add("ui-hidden");
+        }
+      }, 6000);
+    }
   }
 }
 
