@@ -1,0 +1,10 @@
+{
+  "name": "Vinyl Frame — E-Ink & Spotify",
+  "short_name": "Vinyl Frame",
+  "description": "Decoración híbrida para tablet: tocadiscos de vinilo y cuadro artístico estilo E-Ink.",
+  "start_url": "./index.html",
+  "display": "fullscreen",
+  "orientation": "landscape",
+  "background_color": "#141311",
+  "theme_color": "#141311"
+}
