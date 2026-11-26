@@ -74,11 +74,11 @@ html, body {
 /* Ambient / Blur Album Background Mode ("Atmósfera") */
 .ambient-album-bg {
   position: absolute;
-  inset: -12%;
+  inset: -14%;
   z-index: 0;
   background-size: cover;
   background-position: center;
-  filter: blur(72px) saturate(1.45) brightness(0.62);
+  filter: blur(55px) saturate(2.1) brightness(0.95) contrast(1.08);
   opacity: 0;
   pointer-events: none;
   transition: opacity 0.8s ease, background-image 0.8s ease;
@@ -91,8 +91,8 @@ body.theme-ambient .ambient-album-bg {
 body.theme-ambient .md-vinyl-stage {
   background: radial-gradient(
     ellipse at 50% 50%,
-    transparent 0%,
-    rgba(0, 0, 0, 0.38) 100%
+    transparent 35%,
+    rgba(0, 0, 0, 0.22) 100%
   );
 }
 
