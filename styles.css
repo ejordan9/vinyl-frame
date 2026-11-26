@@ -86,8 +86,8 @@ html, body {
 /* Giant Tilted 3D-Flippable Album Sleeve (Left) */
 .album-sleeve-wrap {
   position: relative;
-  z-index: 4;
-  width: min(76vh, 46vw);
+  z-index: 2;
+  width: min(78vh, 47vw);
   aspect-ratio: 1;
   perspective: 1400px;
   transform: rotate(-3.5deg) translateX(6%);
@@ -280,20 +280,21 @@ html, body {
 /* Giant Spinning Vinyl + Tonearm Zone (Right) */
 .vinyl-zone {
   position: relative;
-  z-index: 3;
-  width: min(82vh, 52vw);
+  z-index: 4;
+  width: min(73vh, 45vw);
   aspect-ratio: 1;
   display: flex;
   align-items: center;
   justify-content: center;
   margin-left: -9%;
   flex-shrink: 0;
-  transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.2s;
+  transition: transform 0.9s cubic-bezier(0.22, 1, 0.36, 1) 0.2s, z-index 0s linear 0.2s;
 }
 
-/* Slide vinyl neatly into the album sleeve when paused */
+/* Slide vinyl neatly inside the slightly larger album sleeve when paused */
 .vinyl-zone.stowed {
-  transform: translateX(-34%);
+  z-index: 1;
+  transform: translateX(-46%);
 }
 
 .vinyl-disc {
