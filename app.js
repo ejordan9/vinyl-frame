@@ -110,6 +110,7 @@ let wakeLock = null;
 
 // Elements
 const stage = document.getElementById("stage");
+const vinylZone = document.querySelector(".vinyl-zone");
 const vinylDisc = document.getElementById("vinylDisc");
 const vinylLabel = document.getElementById("vinylLabel");
 const tonearm = document.getElementById("tonearm");
@@ -121,6 +122,7 @@ const labelYear = document.getElementById("labelYear");
 const labelTrackNum = document.getElementById("labelTrackNum");
 const labelArtBg = document.getElementById("labelArtBg");
 const progressFill = document.getElementById("progressFill");
+const scaleNeedle = document.getElementById("scaleNeedle");
 const progressTrack = document.getElementById("progressTrack");
 const timeCurrent = document.getElementById("timeCurrent");
 const timeTotal = document.getElementById("timeTotal");
@@ -178,6 +180,7 @@ function updateProgressUI() {
   const dur = getCurrentDuration();
   const pct = Math.min(100, (elapsed / dur) * 100);
   progressFill.style.width = `${pct}%`;
+  if (scaleNeedle) scaleNeedle.style.left = `${pct}%`;
   progressTrack.setAttribute("aria-valuenow", Math.round(pct));
   timeCurrent.textContent = formatTime(elapsed);
   updateTonearm();
@@ -186,6 +189,7 @@ function updateProgressUI() {
 function setPlaying(next) {
   isPlaying = next;
   vinylDisc.classList.toggle("paused", !isPlaying);
+  if (vinylZone) vinylZone.classList.toggle("stowed", !isPlaying);
   statusDot.classList.toggle("paused", !isPlaying);
   iconPause.hidden = !isPlaying;
   iconPlay.hidden = isPlaying;
@@ -379,8 +383,15 @@ async function togglePlayback() {
 document.getElementById("playPauseBtn").addEventListener("click", togglePlayback);
 vinylDisc.addEventListener("click", togglePlayback);
 
-// 3D Flip Album Sleeve -> Artist Info ("Acerca del artista")
+// 3D Flip Album Sleeve -> Vintage LP Tracklist (Side One / Side Two) + Artist Info
 const albumSleeveEl = document.getElementById("albumSleeve");
+const backTabs = document.getElementById("backTabs");
+const panelTracks = document.getElementById("panelTracks");
+const panelArtist = document.getElementById("panelArtist");
+const lpBackAlbum = document.getElementById("lpBackAlbum");
+const lpBackArtist = document.getElementById("lpBackArtist");
+const sideOneList = document.getElementById("sideOneList");
+const sideTwoList = document.getElementById("sideTwoList");
 const artistCardBg = document.getElementById("artistCardBg");
 const artistCardName = document.getElementById("artistCardName");
 const artistCardStats = document.getElementById("artistCardStats");
@@ -388,7 +399,60 @@ const artistCardBio = document.getElementById("artistCardBio");
 
 let currentArtistId = null;
 let currentArtistName = "Kaito Morita Quartet";
+let currentAlbumId = null;
+let currentAlbumName = "Midnight Pressing";
+let currentTrackName = "Velvet Rain";
 let loadedArtistKey = null;
+let loadedAlbumId = null;
+
+function renderTrackList(tracks) {
+  lpBackAlbum.textContent = currentAlbumName;
+  lpBackArtist.textContent = currentArtistName;
+  const limited = tracks.slice(0, 14);
+  const mid = Math.ceil(limited.length / 2);
+  const fill = (el, list, offset) => {
+    el.innerHTML = list
+      .map((name, i) => {
+        const active = name.toLowerCase() === currentTrackName.toLowerCase();
+        return `<li class="lp-track-item${active ? " is-current" : ""}"><span class="lp-track-num">${offset + i + 1}.</span><span class="lp-track-name">${name}</span></li>`;
+      })
+      .join("");
+  };
+  fill(sideOneList, limited.slice(0, mid), 0);
+  fill(sideTwoList, limited.slice(mid), mid);
+}
+
+async function fetchAlbumTracks() {
+  if (!spotifyMode || !currentAlbumId) {
+    renderTrackList(DEMO_TRACKS.map((t) => t.title));
+    return;
+  }
+  if (loadedAlbumId === currentAlbumId) return;
+  loadedAlbumId = currentAlbumId;
+  try {
+    const token = await getValidSpotifyToken();
+    if (!token) return;
+    const res = await fetch(`https://api.spotify.com/v1/albums/${currentAlbumId}/tracks?limit=16`, {
+      headers: { Authorization: `Bearer ${token}` }
+    });
+    if (res.ok) {
+      const data = await res.json();
+      const names = (data.items || []).map((t) => t.name);
+      if (names.length) renderTrackList(names);
+    }
+  } catch {}
+}
+
+backTabs.addEventListener("click", (e) => {
+  e.stopPropagation();
+  const btn = e.target.closest(".back-tab");
+  if (!btn) return;
+  const tab = btn.dataset.tab;
+  backTabs.querySelectorAll(".back-tab").forEach((b) => b.classList.toggle("active", b === btn));
+  panelTracks.hidden = tab !== "tracks";
+  panelArtist.hidden = tab !== "artist";
+  if (tab === "artist") fetchArtistInfo(currentArtistName, currentArtistId);
+});
 
 async function fetchArtistInfo(artistName, artistId) {
   const key = artistId || artistName;
@@ -497,7 +561,8 @@ albumSleeveEl.addEventListener("click", () => {
   albumSleeveEl.classList.toggle("flipped", willFlip);
   clearTimeout(flipBackTimer);
   if (willFlip) {
-    fetchArtistInfo(currentArtistName, currentArtistId);
+    fetchAlbumTracks();
+    if (!panelArtist.hidden) fetchArtistInfo(currentArtistName, currentArtistId);
     flipBackTimer = setTimeout(() => {
       albumSleeveEl.classList.remove("flipped");
     }, 20000);
@@ -996,6 +1061,9 @@ async function pollSpotify() {
       }
       trackTitle.textContent = item.name;
       trackArtist.textContent = artistStr;
+      currentTrackName = item.name;
+      currentAlbumName = albumName;
+      currentAlbumId = item.album?.id || null;
       currentArtistName = item.artists?.[0]?.name || artistStr;
       currentArtistId = item.artists?.[0]?.id || null;
       albumSleeveEl.classList.remove("flipped");
