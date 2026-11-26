@@ -8,9 +8,9 @@
     color-scheme: light;
   }
 
-  --bg: light-dark(#f2ede3, #151412);
-  --surface: light-dark(#ebe4d6, #1f1d1a);
-  --surface-elevated: light-dark(#f8f4ec, #272420);
+  --bg: light-dark(#f2ede3, #1e1d1b);
+  --surface: light-dark(#ebe4d6, #282623);
+  --surface-elevated: light-dark(#f8f4ec, #2f2c28);
   --text: light-dark(#1f1d1a, #efeae0);
   --text-muted: light-dark(#625b51, #9e9588);
   --border: light-dark(rgba(31, 29, 26, 0.14), rgba(239, 234, 224, 0.14));
@@ -81,6 +81,12 @@ html, body {
   padding-right: 3.5rem;
   user-select: none;
   overflow: hidden;
+  background: radial-gradient(
+    ellipse at 48% 50%,
+    light-dark(transparent, color-mix(in srgb, var(--accent) 22%, #242220)) 0%,
+    light-dark(transparent, #181715) 72%
+  );
+  transition: background 0.8s ease;
 }
 
 /* Giant Tilted 3D-Flippable Album Sleeve (Left) */
@@ -312,8 +318,9 @@ html, body {
     #090909 100%
   );
   box-shadow:
-    0 26px 64px rgba(0, 0, 0, 0.52),
-    inset 0 0 0 2px rgba(255, 255, 255, 0.06);
+    0 26px 64px rgba(0, 0, 0, 0.58),
+    0 0 0 1.5px light-dark(rgba(0, 0, 0, 0.08), rgba(255, 255, 255, 0.14)),
+    inset 0 0 0 2px rgba(255, 255, 255, 0.08);
   display: flex;
   align-items: center;
   justify-content: center;
