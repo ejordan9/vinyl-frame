@@ -386,6 +386,15 @@ function updateClock() {
 // Playback ticker
 setInterval(() => {
   if (!isPlaying) return;
+  if (spotifyMode) {
+    if (elapsed < spotifyDuration) {
+      elapsed += 1;
+      updateProgressUI();
+    } else {
+      pollSpotify();
+    }
+    return;
+  }
   const t = DEMO_TRACKS[trackIndex];
   elapsed += 1;
   if (elapsed >= t.duration) {
