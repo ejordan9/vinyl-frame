@@ -151,6 +151,9 @@
 
   <!-- Top-right system icon controls (discreet, 44x44 touch targets) -->
   <nav class="top-dock ui-chrome" aria-label="Controles de marco">
+    <button type="button" class="icon-pill-btn" id="qrBtn" aria-label="Código QR (Jam / Canción)" title="QR Jam / Spotify">
+      <svg viewBox="0 0 24 24" width="19" height="19" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><path d="M14 14h3v3h-3zM20 14v3h-3M14 20h6"></path></svg>
+    </button>
     <button type="button" class="icon-pill-btn" id="sceneCycleBtn" aria-label="Cambiar ilustración" title="Cambiar arte" hidden>
       <svg viewBox="0 0 24 24" width="20" height="20" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><polyline points="16 3 21 3 21 8"></polyline><line x1="4" y1="20" x2="21" y2="3"></line><polyline points="21 16 21 21 16 21"></polyline><line x1="15" y1="15" x2="21" y2="21"></line><line x1="4" y1="4" x2="9" y2="9"></line></svg>
     </button>
@@ -211,6 +214,29 @@
         </div>
         <button type="button" class="dock-btn" id="disconnectSpotifyBtn" hidden style="align-self:flex-start;padding-left:0;color:var(--text-muted);">Desconectar Spotify (volver a Demo)</button>
       </div>
+      <div class="setting-group">
+        <label class="setting-label" for="jamUrlInput">Modo Jam / Playlist Colaborativa</label>
+        <p class="setting-hint">Pega el enlace de tu Spotify Jam para que tus invitados escaneen el QR y agreguen música. Si lo dejas vacío, el QR abrirá la canción actual.</p>
+        <div class="input-row">
+          <input type="url" id="jamUrlInput" placeholder="https://spotify.link/...">
+          <button type="button" class="action-btn" id="saveJamBtn">Guardar</button>
+        </div>
+        <button type="button" class="dock-btn" id="clearJamBtn" hidden style="align-self:flex-start;padding-left:0;color:var(--text-muted);">Finalizar Jam (volver a QR de canción)</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Native modal dialog for Smart QR (Jam or Current Track) -->
+  <dialog id="qrDialog" closedby="any" aria-labelledby="qrTitle">
+    <form method="dialog" class="dialog-inner qr-dialog-inner">
+      <header class="dialog-header">
+        <h2 id="qrTitle">Escanea en Spotify</h2>
+        <button type="submit" class="close-btn" aria-label="Cerrar">✕</button>
+      </header>
+      <div class="qr-box">
+        <img id="qrImage" src="" alt="Código QR de Spotify" width="220" height="220">
+      </div>
+      <p class="qr-subtitle" id="qrSubtitle">Abre esta canción en tu teléfono</p>
     </form>
   </dialog>
 

@@ -509,6 +509,7 @@ let currentArtistName = "Kaito Morita Quartet";
 let currentAlbumId = null;
 let currentAlbumName = "Midnight Pressing";
 let currentTrackName = "Velvet Rain";
+let currentTrackUrl = "https://open.spotify.com/";
 let loadedArtistKey = null;
 let loadedAlbumId = null;
 
@@ -1164,6 +1165,7 @@ async function pollSpotify() {
       trackTitle.textContent = item.name;
       trackArtist.textContent = artistStr;
       currentTrackName = item.name;
+      currentTrackUrl = item.external_urls?.spotify || "https://open.spotify.com/";
       currentAlbumName = albumName;
       currentAlbumId = item.album?.id || null;
       currentArtistName = item.artists?.[0]?.name || artistStr;
@@ -1231,6 +1233,65 @@ disconnectSpotifyBtn.addEventListener("click", () => {
   renderTrack();
   setPlaying(true);
 });
+
+// ==================== SMART QR (SPOTIFY JAM / CURRENT TRACK) ====================
+const qrDialog = document.getElementById("qrDialog");
+const qrTitle = document.getElementById("qrTitle");
+const qrImage = document.getElementById("qrImage");
+const qrSubtitle = document.getElementById("qrSubtitle");
+const jamUrlInput = document.getElementById("jamUrlInput");
+const saveJamBtn = document.getElementById("saveJamBtn");
+const clearJamBtn = document.getElementById("clearJamBtn");
+
+function getSavedJamUrl() {
+  try { return localStorage.getItem("spotify_jam_url") || ""; } catch { return ""; }
+}
+
+function updateJamUI() {
+  const jam = getSavedJamUrl();
+  if (jamUrlInput) jamUrlInput.value = jam;
+  if (clearJamBtn) clearJamBtn.hidden = !jam;
+}
+
+saveJamBtn?.addEventListener("click", () => {
+  const val = jamUrlInput.value.trim();
+  if (!val) return;
+  try { localStorage.setItem("spotify_jam_url", val); } catch {}
+  updateJamUI();
+  settingsDialog.close();
+  openQrDialog();
+});
+
+clearJamBtn?.addEventListener("click", () => {
+  try { localStorage.removeItem("spotify_jam_url"); } catch {}
+  updateJamUI();
+});
+
+function openQrDialog() {
+  const jam = getSavedJamUrl();
+  const targetUrl = jam || currentTrackUrl;
+  qrTitle.textContent = jam ? "Únete a la Spotify Jam" : currentTrackName;
+  qrSubtitle.textContent = jam
+    ? "Escanea para agregar canciones a la cola de la sala"
+    : `${currentArtistName} · Abrir en Spotify`;
+  qrImage.src = `https://api.qrserver.com/v1/create-qr-code/?size=240x240&margin=6&data=${encodeURIComponent(targetUrl)}`;
+  qrDialog.showModal();
+}
+
+document.getElementById("qrBtn")?.addEventListener("click", openQrDialog);
+
+if (qrDialog && !("closedBy" in HTMLDialogElement.prototype)) {
+  qrDialog.addEventListener("click", (event) => {
+    if (event.target !== qrDialog) return;
+    const rect = qrDialog.getBoundingClientRect();
+    const inside =
+      rect.top <= event.clientY && event.clientY <= rect.top + rect.height &&
+      rect.left <= event.clientX && event.clientX <= rect.left + rect.width;
+    if (!inside) qrDialog.close();
+  });
+}
+
+updateJamUI();
 
 // Init
 let initialTheme = schemeMeta.content || "light dark";

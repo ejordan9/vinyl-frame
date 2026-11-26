@@ -1030,6 +1030,34 @@ dialog::backdrop {
   cursor: pointer;
 }
 
+.qr-dialog-inner {
+  align-items: center;
+  text-align: center;
+}
+
+.qr-dialog-inner .dialog-header {
+  width: 100%;
+}
+
+.qr-box {
+  background: #ffffff;
+  padding: 0.85rem;
+  border-radius: 14px;
+  display: inline-flex;
+  box-shadow: 0 8px 24px rgba(0, 0, 0, 0.25);
+}
+
+.qr-box img {
+  display: block;
+  border-radius: 6px;
+}
+
+.qr-subtitle {
+  font-size: 0.88rem;
+  color: var(--text-muted);
+  max-width: 30ch;
+}
+
 /* Portrait tablet fallback */
 @media (max-width: 780px) {
   .vinyl-composition {
