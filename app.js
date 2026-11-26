@@ -128,6 +128,7 @@ const progressTrack = document.getElementById("progressTrack");
 const timeCurrent = document.getElementById("timeCurrent");
 const timeTotal = document.getElementById("timeTotal");
 const statusDot = document.getElementById("statusDot");
+const deckStatusLabel = document.getElementById("deckStatusLabel");
 const iconPause = document.getElementById("iconPause");
 const iconPlay = document.getElementById("iconPlay");
 
@@ -192,6 +193,7 @@ function setPlaying(next) {
   vinylDisc.classList.toggle("paused", !isPlaying);
   if (vinylZone) vinylZone.classList.toggle("stowed", !isPlaying);
   statusDot.classList.toggle("paused", !isPlaying);
+  if (deckStatusLabel) deckStatusLabel.textContent = isPlaying ? "PLAY" : "STBY";
   iconPause.hidden = !isPlaying;
   iconPlay.hidden = isPlaying;
   updateTonearm();
