@@ -646,11 +646,32 @@ async function fetchArtistInfo(artistName, artistId) {
 }
 
 let flipBackTimer = null;
+let autoFlipTimer = null;
+let autoFlippedTrackKey = null;
+
+function scheduleAutoFlip(trackKey) {
+  clearTimeout(autoFlipTimer);
+  if (autoFlippedTrackKey === trackKey) return;
+  autoFlipTimer = setTimeout(() => {
+    if (!isPlaying || stage.dataset.mode !== "vinyl") return;
+    if (albumSleeveEl.classList.contains("flipped")) return;
+    autoFlippedTrackKey = trackKey;
+    albumSleeveEl.classList.add("flipped");
+    fetchAlbumTracks();
+    fetchArtistInfo(currentArtistName, currentArtistId);
+    clearTimeout(flipBackTimer);
+    flipBackTimer = setTimeout(() => {
+      albumSleeveEl.classList.remove("flipped");
+    }, 18000);
+  }, 30000);
+}
 
 albumSleeveEl.addEventListener("click", () => {
   const willFlip = !albumSleeveEl.classList.contains("flipped");
   albumSleeveEl.classList.toggle("flipped", willFlip);
   clearTimeout(flipBackTimer);
+  clearTimeout(autoFlipTimer);
+  autoFlippedTrackKey = lastTrackId || currentTrackName;
   if (willFlip) {
     fetchAlbumTracks();
     fetchArtistInfo(currentArtistName, currentArtistId);
@@ -1171,6 +1192,7 @@ async function pollSpotify() {
       currentArtistName = item.artists?.[0]?.name || artistStr;
       currentArtistId = item.artists?.[0]?.id || null;
       albumSleeveEl.classList.remove("flipped");
+      scheduleAutoFlip(item.id);
       labelAlbum.textContent = albumName;
       const year = item.album?.release_date ? item.album.release_date.slice(0, 4) : "";
       if (labelYear) labelYear.textContent = year ? `℗ ${year}` : "SIDE A";
