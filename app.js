@@ -544,19 +544,56 @@ window.addEventListener("storage", (e) => {
   if (e.key === "color-scheme") applyScheme(e.newValue ?? "light dark", false);
 });
 
-// Screen Wake Lock
-wakeLockToggle.addEventListener("change", async () => {
-  if (wakeLockToggle.checked && "wakeLock" in navigator) {
-    try {
-      wakeLock = await navigator.wakeLock.request("screen");
-    } catch {
-      wakeLockToggle.checked = false;
-    }
-  } else if (wakeLock) {
-    await wakeLock.release();
+// Screen Wake Lock (persisted + auto re-acquired on visibility/charging events)
+async function acquireWakeLock() {
+  if (!wakeLockToggle.checked || !("wakeLock" in navigator)) return;
+  if (document.visibilityState !== "visible") return;
+  try {
+    if (wakeLock && !wakeLock.released) return;
+    wakeLock = await navigator.wakeLock.request("screen");
+    wakeLock.addEventListener("release", () => {
+      wakeLock = null;
+      // Re-acquire shortly after OS/charging interruptions if still visible & enabled
+      if (wakeLockToggle.checked && document.visibilityState === "visible") {
+        setTimeout(acquireWakeLock, 1200);
+      }
+    });
+  } catch {}
+}
+
+async function releaseWakeLock() {
+  if (wakeLock) {
+    try { await wakeLock.release(); } catch {}
     wakeLock = null;
   }
+}
+
+wakeLockToggle.addEventListener("change", async () => {
+  try { localStorage.setItem("wake_lock_enabled", wakeLockToggle.checked ? "1" : "0"); } catch {}
+  if (wakeLockToggle.checked) {
+    await acquireWakeLock();
+  } else {
+    await releaseWakeLock();
+  }
 });
+
+document.addEventListener("visibilitychange", () => {
+  if (document.visibilityState === "visible" && wakeLockToggle.checked) {
+    acquireWakeLock();
+  }
+});
+
+window.addEventListener("focus", () => {
+  if (wakeLockToggle.checked) acquireWakeLock();
+});
+
+// Restore saved Wake Lock preference on load
+try {
+  if (localStorage.getItem("wake_lock_enabled") === "1") {
+    wakeLockToggle.checked = true;
+    acquireWakeLock();
+  }
+} catch {}
 
 // ==================== SPOTIFY OAUTH PKCE + LIVE SYNC ====================
 const SPOTIFY_SCOPES = "user-read-currently-playing user-read-playback-state user-modify-playback-state";
